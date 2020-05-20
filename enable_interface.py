@@ -18,23 +18,26 @@ all_devices = [ios_device_s1]
 for device in all_devices:
     # Connect to devices
     net_connect = ConnectHandler(**device)
-    interface = input("What interface would you like to enable?: ")
-    output = net_connect.send_command('show interface ' + interface)
-    if 'Invalid input detected' in output:
-        print("You have entered an invalid interface")
-    else:
-        firstline = output.splitlines()[0]
-        print(firstline)
-        if not 'up' in firstline:
-            no_shut = input('Interface is down, would you like to enable? (y/n)')
-            if no_shut == 'y':
-                commands = ['interface ' + interface, 'no shut', 'exit']
-                output = net_connect.send_config_set(commands)
-                print(output)
-                print('#' * 40)
-                print('The interface has been enabled')
-            else:
-                print("Will terminate connection now!")
-                break
+    is_valid_input = False
+    while not is_valid_input:
+        interface = input("What interface would you like to enable?: ")
+        output = net_connect.send_command('show interface ' + interface)
+        if 'Invalid input detected' in output:
+            print("You have entered an invalid interface")
         else:
-            print("The interface " + interface + " is already up")
+            is_valid_input = True
+            firstline = output.splitlines()[0]
+            print(firstline)
+            if not 'up' in firstline:
+                no_shut = input('Interface is down, would you like to enable? (y/n)')
+                if no_shut == 'y':
+                    commands = ['interface ' + interface, 'no shut', 'exit']
+                    output = net_connect.send_config_set(commands)
+                    print(output)
+                    print('#' * 40)
+                    print('The interface has been enabled')
+                else:
+                    print("Will terminate connection now!")
+                    break
+            else:
+                print("The interface " + interface + " is already up")
